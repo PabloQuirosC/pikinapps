@@ -1,0 +1,168 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Concepto "Ember Signal": casi negro cálido con acentos ámbar → magenta.
+ * :root = modo oscuro (por defecto). .light = modo claro alternativo.
+ */
+
+@theme inline {
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 14px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-glass: var(--glass);
+  --color-ember: var(--ember);
+  --color-magenta: var(--magenta);
+}
+
+:root {
+  --radius: 0.875rem;
+  --background: oklch(0.13 0.008 30);
+  --foreground: oklch(0.96 0.01 60);
+  --card: oklch(0.17 0.01 30);
+  --card-foreground: oklch(0.96 0.01 60);
+  --popover: oklch(0.17 0.01 30);
+  --popover-foreground: oklch(0.96 0.01 60);
+  --primary: oklch(0.78 0.16 65);
+  --primary-foreground: oklch(0.15 0.02 40);
+  --secondary: oklch(0.22 0.012 30);
+  --secondary-foreground: oklch(0.96 0.01 60);
+  --muted: oklch(0.21 0.01 30);
+  --muted-foreground: oklch(0.68 0.015 50);
+  --accent: oklch(0.65 0.24 355);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --success: oklch(0.75 0.17 155);
+  --warning: oklch(0.8 0.16 80);
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.78 0.16 65);
+  --glass: oklch(0.2 0.01 30 / 55%);
+  --ember: oklch(0.78 0.16 65);
+  --magenta: oklch(0.65 0.24 355);
+  --gradient-brand: linear-gradient(120deg, var(--ember), var(--magenta));
+  --shadow-glow: 0 20px 60px -20px color-mix(in oklab, var(--magenta) 55%, transparent);
+  --shadow-card: 0 30px 80px -40px oklch(0 0 0 / 70%);
+}
+
+.light {
+  --background: oklch(0.975 0.008 70);
+  --foreground: oklch(0.18 0.02 30);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.02 30);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.02 30);
+  --primary: oklch(0.66 0.17 55);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.93 0.01 60);
+  --secondary-foreground: oklch(0.18 0.02 30);
+  --muted: oklch(0.94 0.01 60);
+  --muted-foreground: oklch(0.45 0.02 40);
+  --accent: oklch(0.58 0.24 355);
+  --border: oklch(0 0 0 / 9%);
+  --input: oklch(0 0 0 / 12%);
+  --glass: oklch(1 0 0 / 65%);
+  --ember: oklch(0.68 0.17 55);
+  --magenta: oklch(0.58 0.24 355);
+  --shadow-card: 0 30px 80px -40px oklch(0.3 0.05 40 / 35%);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { color-scheme: dark; }
+  html.light { color-scheme: light; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    transition: background-color 0.5s ease, color 0.5s ease;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.03em; }
+  ::selection { background: var(--magenta); color: white; }
+}
+
+@utility text-gradient {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility bg-gradient-brand { background: var(--gradient-brand); }
+@utility shadow-glow { box-shadow: var(--shadow-glow); }
+@utility shadow-card { box-shadow: var(--shadow-card); }
+@utility glass {
+  background: var(--glass);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid var(--color-border);
+}
+@utility text-display-xl { font-size: clamp(2.75rem, 7vw + 0.5rem, 7.5rem); line-height: 0.95; }
+@utility text-display-lg { font-size: clamp(2.25rem, 4vw + 0.75rem, 4.5rem); line-height: 1; }
+@utility text-eyebrow {
+  font-size: 0.75rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600;
+  color: var(--color-primary);
+}
+@utility container-x { width: 100%; max-width: 80rem; margin-inline: auto; padding-inline: clamp(1.25rem, 4vw, 2.5rem); }
+@utility section-y { padding-block: clamp(5rem, 10vw, 9rem); }
+
+@utility spotlight {
+  position: relative;
+  isolation: isolate;
+  &::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none;
+    background: radial-gradient(500px circle at var(--mx, 50%) var(--my, 50%), color-mix(in oklab, var(--magenta) 18%, transparent), transparent 45%);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  &:hover::before { opacity: 1; }
+}
+
+@utility grain {
+  &::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 60; opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@keyframes aurora {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(8%, -6%) scale(1.15); }
+  66% { transform: translate(-6%, 5%) scale(0.95); }
+}
+@keyframes marquee { to { transform: translateX(-50%); } }
+@utility animate-aurora { animation: aurora 18s ease-in-out infinite; }
+@utility animate-marquee { animation: marquee 35s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
