@@ -6,6 +6,9 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from .config import DatabaseConfig
 from .enums import DatabaseType
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class DatabaseManager:
@@ -16,6 +19,7 @@ class DatabaseManager:
     def get_engine(cls, db_type: DatabaseType = DatabaseType.SUPABASE):
         if cls._engine is None:
             config = DatabaseConfig(db_type)
+            logger.info("Creando conexión SQLAlchemy para la base de datos.")
             cls._engine = create_engine(
                 config.url,
                 connect_args=config.connect_args,
@@ -25,6 +29,7 @@ class DatabaseManager:
                 max_overflow=int(os.getenv("DB_MAX_OVERFLOW", "5")),
                 echo=os.getenv("DB_ECHO", "false").lower() == "true",
             )
+            logger.info("Conexión SQLAlchemy configurada correctamente.")
         return cls._engine
 
     @classmethod
@@ -45,6 +50,7 @@ class DatabaseManager:
     @classmethod
     def close_all(cls) -> None:
         if cls._engine is not None:
+            logger.info("Cerrando conexiones de la base de datos.")
             cls._engine.dispose()
         cls._engine = None
         cls._session_maker = None

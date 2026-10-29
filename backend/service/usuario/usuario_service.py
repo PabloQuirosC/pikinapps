@@ -8,7 +8,17 @@ from service.auth.auth_service import hash_password
 
 
 def _response(user: Usuario) -> UsuarioResponse:
-    return UsuarioResponse.model_validate(user)
+    return UsuarioResponse(
+        id=user.id,
+        nombre=user.nombre,
+        apellido=user.apellido,
+        email=user.email,
+        nombre_usuario=user.nombre_usuario,
+        rol=user.usuario_roles[0].rol.nombre_rol if user.usuario_roles else None,
+        pais=user.pais,
+        activo=user.activo,
+        fecha_ultimo_login=user.fecha_ultimo_login,
+    )
 
 
 def create_usuario(db: Session, data: UsuarioCreate) -> UsuarioResponse:
@@ -35,9 +45,14 @@ def get_all_usuarios(db: Session, skip: int = 0, limit: int = 100):
 
 
 def update_usuario(db: Session, usuario_id: int, data: UsuarioUpdate) -> UsuarioResponse:
-    if not usuario_repository.get_usuario_by_id(db, usuario_id):
+    user = usuario_repository.get_usuario_by_id(db, usuario_id)
+    if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado.")
     values = data.model_dump(exclude_unset=True)
+    if "nombre_usuario" in values:
+        existing = usuario_repository.get_usuario_by_username(db, values["nombre_usuario"])
+        if existing and existing.id != usuario_id:
+            raise HTTPException(status_code=409, detail="El nombre de usuario ya existe.")
     if "contrasena" in values:
         values["password"] = hash_password(values.pop("contrasena"))
     user = usuario_repository.update_usuario(db, usuario_id, values)

@@ -8,8 +8,10 @@ from sqlalchemy.orm import Session
 
 from models.usuario import Usuario
 from repository.usuario import usuario_repository
+from utils.logger import get_logger
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+logger = get_logger(__name__)
 
 
 def hash_password(password: str) -> str:
@@ -30,11 +32,29 @@ def create_access_token(db: Session, user: Usuario) -> str:
     payload = {
         "sub": user.nombre_usuario,
         "user_id": user.id,
+        "nombre": f"{user.nombre} {user.apellido}".strip(),
+        "email": user.email,
+        "role": _get_role(db, user.id),
         "permisos": _get_permissions(db, user.id),
         "exp": now + timedelta(minutes=expires),
         "iat": now,
     }
     return jwt.encode(payload, secret, algorithm=os.getenv("ALGORITHM", "HS256"))
+
+
+def _get_role(db: Session, user_id: int) -> str:
+    from models.rol import Rol
+    from models.usuario_rol import UsuarioRol
+
+    role = (
+        db.query(Rol.nombre_rol)
+        .join(UsuarioRol, UsuarioRol.rol_id == Rol.id)
+        .filter(UsuarioRol.usuario_id == user_id)
+        .order_by(Rol.id)
+        .first()
+    )
+    normalized = (role[0].lower() if role else "lector")
+    return normalized if normalized in {"admin", "editor", "lector"} else "lector"
 
 
 def _get_permissions(db: Session, user_id: int) -> list[dict[str, str]]:
@@ -55,6 +75,7 @@ def _get_permissions(db: Session, user_id: int) -> list[dict[str, str]]:
 def authenticate_user(db: Session, username: str, password: str) -> Usuario:
     user = usuario_repository.get_usuario_by_username(db, username)
     if not user or not user.activo or not verify_password(password, user.password):
+        logger.warning("Intento de autenticación rechazado para el identificador: %s", username)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Usuario o contraseña inválidos.",
@@ -64,6 +85,7 @@ def authenticate_user(db: Session, username: str, password: str) -> Usuario:
     user.fecha_ultimo_login = datetime.now(timezone.utc)
     db.commit()
     db.refresh(user)
+    logger.info("Usuario autenticado correctamente: %s", user.nombre_usuario)
     return user
 
 
@@ -76,11 +98,13 @@ def verify_token(token: str) -> dict:
             token, secret, algorithms=[os.getenv("ALGORITHM", "HS256")]
         )
     except JWTError as exc:
+        logger.warning("Intento de uso de JWT inválido o expirado.")
         raise HTTPException(
             status_code=401,
             detail="Token inválido o expirado.",
             headers={"WWW-Authenticate": "Bearer"},
         ) from exc
     if not payload.get("user_id"):
+        logger.warning("JWT rechazado porque no contiene user_id.")
         raise HTTPException(status_code=401, detail="Token inválido.")
     return payload

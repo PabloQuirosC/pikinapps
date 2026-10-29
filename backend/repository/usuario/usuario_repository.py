@@ -1,3 +1,4 @@
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from models.usuario import Usuario
@@ -5,7 +6,11 @@ from models.usuario_rol import UsuarioRol
 
 
 def get_usuario_by_username(db: Session, username: str) -> Usuario | None:
-    return db.query(Usuario).filter(Usuario.nombre_usuario == username).first()
+    return (
+        db.query(Usuario)
+        .filter(or_(Usuario.nombre_usuario == username, Usuario.email == username))
+        .first()
+    )
 
 
 def create_usuario(db: Session, values: dict) -> Usuario:

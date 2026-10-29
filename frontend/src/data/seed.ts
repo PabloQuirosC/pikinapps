@@ -4,7 +4,7 @@ import p3 from "@/assets/p3.jpg";
 import type { CompanyInfo, Experience, Project, Schedule, Skill, SocialLink, Testimonial } from "@/types";
 
 export const seedCompany: CompanyInfo = {
-  ownerName: "[MI NOMBRE]",
+  ownerName: "Pablo Quirós Cortes",
   companyName: "PikinApps",
   role: "Fundador & Desarrollador Full-Stack",
   heroTitle: "Construyo productos digitales que",

@@ -3,11 +3,27 @@ from sqlalchemy.orm import Session
 
 from database.dependencies import get_current_user, get_db
 from models.rol_permiso import RolPermiso
+from models.rol import Rol
 from models.usuario_rol import UsuarioRol
-from schemas.schemas import AsignarPermisoRequest, AsignarRolRequest, RelationResponse
+from schemas.schemas import AsignarPermisoRequest, AsignarRolRequest, RelationResponse, RolResponse
 from utils.auth_middleware import requiere_modulo
 
 router = APIRouter(prefix="/relaciones", tags=["Relaciones"])
+
+
+@router.get("/usuarios-roles/{usuario_id}", response_model=list[RolResponse])
+def list_user_roles(
+    usuario_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    requiere_modulo("usuarios")(current_user)
+    return (
+        db.query(Rol)
+        .join(UsuarioRol, Rol.id == UsuarioRol.rol_id)
+        .filter(UsuarioRol.usuario_id == usuario_id)
+        .all()
+    )
 
 
 @router.post("/usuarios-roles", response_model=RelationResponse, status_code=status.HTTP_201_CREATED)
@@ -17,9 +33,10 @@ def assign_role(
     current_user: dict = Depends(get_current_user),
 ):
     requiere_modulo("roles", "write")(current_user)
+    relation = db.get(UsuarioRol, (data.usuario_id, data.rol_id))
+    if relation:
+        return RelationResponse(usuario_id=data.usuario_id, rol_id=data.rol_id)
     relation = UsuarioRol(**data.model_dump())
-    if db.get(UsuarioRol, (data.usuario_id, data.rol_id)):
-        raise HTTPException(status_code=409, detail="La relación ya existe.")
     db.add(relation)
     db.commit()
     return RelationResponse(usuario_id=data.usuario_id, rol_id=data.rol_id)

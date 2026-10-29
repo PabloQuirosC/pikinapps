@@ -16,6 +16,9 @@ from models.rol_permiso import RolPermiso
 from models.usuario import Usuario
 from models.usuario_rol import UsuarioRol
 from models.modulo import Modulo
+from models.empresa import Empresa
+from models.experiencia import Experiencia
+from models.habilidad import Habilidad
 
 load_dotenv()
 config = context.config

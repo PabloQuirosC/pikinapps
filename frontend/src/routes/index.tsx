@@ -8,7 +8,7 @@ import { Contact, ScheduleSection } from "@/components/site/bottom";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "[MI NOMBRE] — Desarrollo web premium | PikinApps" },
+      { title: "Pablo Quirós Cortes — Desarrollo web premium | PikinApps" },
       { name: "description", content: "Diseño y desarrollo de sitios web, e-commerce y aplicaciones a medida para marcas que quieren destacar." },
       { property: "og:title", content: "PikinApps — Desarrollo web premium" },
       { property: "og:description", content: "Sitios web, e-commerce y apps a medida con diseño de estudio y código impecable." },

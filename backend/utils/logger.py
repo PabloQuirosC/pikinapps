@@ -1,75 +1,55 @@
 import logging
-import sys
 import os
-from pathlib import Path
+import sys
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
+from pathlib import Path
 
-def setup_logger():
-    """Configura el sistema de logging para la aplicación
-    - En local (desarrollo): Consola + Archivo con rotación diaria
-    - En Vercel (producción): Solo Consola (filesystem es read-only)
-    """
-    
-    # Crear el logger principal
-    logger = logging.getLogger()
+LOGGER_NAME = "pikinapps"
+LOG_FORMAT = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+
+
+def setup_logger() -> logging.Logger:
+    """Configura el logger de la aplicación una sola vez."""
+    logger = logging.getLogger(LOGGER_NAME)
+    if logger.handlers:
+        return logger
+
     logger.setLevel(logging.INFO)
-    
-    # Limpiar handlers existentes
-    logger.handlers.clear()
-    
-    # Formato de los logs
-    log_format = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    
-    # ✅ Handler para consola (stdout) - Siempre disponible
+    logger.propagate = False
+    formatter = logging.Formatter(LOG_FORMAT, datefmt="%Y-%m-%d %H:%M:%S")
+
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(log_format)
+    console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
-    
-    # ✅ Handler para archivo con rotación diaria - Solo en desarrollo local
-    # En Vercel, el filesystem es read-only, así que saltamos esto
-    is_vercel = os.getenv("VERCEL", "").lower() == "true"
-    
-    if not is_vercel:
+
+    if os.getenv("VERCEL", "").lower() != "true":
         try:
-            # Obtener ruta de la carpeta logs
-            backend_dir = Path(__file__).parent.parent
-            logs_dir = backend_dir / "logs"
-            
-            # Crear carpeta logs si no existe
+            logs_dir = Path(__file__).resolve().parent.parent / "logs"
             logs_dir.mkdir(exist_ok=True)
-            
-            # Nombre del archivo con fecha
-            fecha_actual = datetime.now().strftime("%Y-%m-%d")
-            log_file = logs_dir / f"inmocr{fecha_actual}.log"
-            
-            # TimedRotatingFileHandler: rota a medianoche cada día
-            # when='midnight' = rota a las 00:00 del siguiente día
-            # interval=1 = cada 1 día
-            # backupCount=30 = mantiene 30 archivos anteriores
+            log_file = logs_dir / f"pikinapps-{datetime.now():%Y-%m-%d}.log"
             file_handler = TimedRotatingFileHandler(
                 log_file,
-                when='midnight',
+                when="midnight",
                 interval=1,
                 backupCount=30,
-                encoding='utf-8'
+                encoding="utf-8",
             )
-            
-            # El formato del suffix para los archivos rotados
             file_handler.suffix = "%Y-%m-%d"
-            
             file_handler.setLevel(logging.INFO)
-            file_handler.setFormatter(log_format)
+            file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
-            
-            logger.info(f"✅ Logging configurado - Consola + Archivo: {log_file}")
-        except Exception as e:
-            logger.warning(f"⚠️ No se pudo configurar archivo de logs: {e}")
+            logger.info("Logging configurado en consola y archivo: %s", log_file)
+        except OSError:
+            logger.exception("No se pudo crear el archivo de logs.")
     else:
-        logger.info("✅ Logging configurado para Vercel - Consola únicamente")
-    
+        logger.info("Logging configurado para Vercel: solo consola.")
+
     return logger
+
+
+def get_logger(name: str) -> logging.Logger:
+    """Obtiene un logger hijo con el formato centralizado de PikinApps."""
+    setup_logger()
+    return logging.getLogger(f"{LOGGER_NAME}.{name}")

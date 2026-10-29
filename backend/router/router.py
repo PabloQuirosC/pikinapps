@@ -5,6 +5,7 @@ from .rol_router import router as rol_router
 from .permiso_router import router as permiso_router
 from .modulo_router import router as modulo_router
 from .relaciones_router import router as relaciones_router
+from .empresa_router import router as empresa_router
 
 # Router principal que agrupa todos los routers
 api_router = APIRouter()
@@ -16,5 +17,6 @@ api_router.include_router(rol_router)
 api_router.include_router(permiso_router)
 api_router.include_router(modulo_router)
 api_router.include_router(relaciones_router)
+api_router.include_router(empresa_router)
 
 __all__ = ["api_router"]
