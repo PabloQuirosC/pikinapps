@@ -58,8 +58,8 @@ export interface CompanyResponse {
   email: string;
   whatsapp: string;
   location: string;
-  experience: ExperienceResponse[];
-  skills: SkillResponse[];
+  experience?: ExperienceResponse[];
+  skills?: SkillResponse[];
 }
 
 export interface ExperienceResponse {

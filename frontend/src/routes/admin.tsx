@@ -502,7 +502,7 @@ function Empresa({ readOnly }: { readOnly: boolean }) {
         location: saved.location,
       });
       updateExperience(
-        saved.experience.map((item) => ({
+        (saved.experience ?? []).map((item) => ({
           id: String(item.id),
           kind: item.kind,
           title: item.title,
@@ -514,7 +514,7 @@ function Empresa({ readOnly }: { readOnly: boolean }) {
         })),
       );
       updateSkills(
-        saved.skills.map((item) => ({
+        (saved.skills ?? skillsDraft).map((item) => ({
           id: String(item.id),
           name: item.name,
           level: item.level,

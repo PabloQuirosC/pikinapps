@@ -60,6 +60,8 @@ export const useSite = create<SiteState>()(
       loadCompany: async () => {
         try {
           const remote = await api.company();
+          const currentExperience = useSite.getState().experience;
+          const currentSkills = useSite.getState().skills;
           set({
             company: {
               ownerName: remote.owner_name,
@@ -74,7 +76,7 @@ export const useSite = create<SiteState>()(
               whatsapp: remote.whatsapp,
               location: remote.location,
             },
-            experience: remote.experience.map((item) => ({
+            experience: (remote.experience ?? currentExperience).map((item) => ({
               id: String(item.id),
               kind: item.kind,
               title: item.title,
@@ -84,7 +86,7 @@ export const useSite = create<SiteState>()(
               description: item.description,
               visible: item.visible,
             })),
-            skills: remote.skills.map((item) => ({
+            skills: (remote.skills ?? currentSkills).map((item) => ({
               id: String(item.id),
               name: item.name,
               level: item.level,

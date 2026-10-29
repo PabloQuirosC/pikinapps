@@ -121,8 +121,10 @@ function RootShell({ children }: { children: ReactNode }) {
 function ThemeSync() {
   const theme = useSite((s) => s.theme);
   useEffect(() => {
-    useSite.persist.rehydrate();
-    void useSite.getState().loadCompany();
+    void (async () => {
+      await useSite.persist.rehydrate();
+      await useSite.getState().loadCompany();
+    })();
   }, []);
   useEffect(() => {
     document.documentElement.classList.toggle("light", theme === "light");
